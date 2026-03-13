@@ -1,15 +1,66 @@
 ---
 name: evermem
-description: "EverMemOS-powered long-term memory for Claude Code. Provides two tools: (1) add-memories — auto-detects installed CLI agents (Claude Code, Codex, Kimi, Qwen Code), extracts user/assistant messages from session logs and stores them in EverMemOS cloud memory, (2) search-memories — semantic search across all stored memories using keyword, vector, or hybrid retrieval. Requires EVERMEMOS_API_KEY environment variable. Use this skill to persist important conversation context across sessions and retrieve relevant past knowledge."
+description: >
+  EverMemOS long-term memory for AI coding tools. Use this skill when the user
+  wants to remember past conversations, search previous sessions, recall project
+  context, or sync memories from Claude Code / Codex / Kimi / Qwen Code.
+  Triggers on: "remember", "recall", "what did we discuss", "search memory",
+  "sync memories", "past sessions", "previous context", "what have I worked on".
+  Provides evermem run (sync) and evermem search (retrieve).
+license: MIT
+compatibility: Requires evermem CLI installed globally (npm install -g evermem-async)
+metadata:
+  author: nanxingw
+  version: "0.1.0"
 allowed-tools:
-  - Read
   - Bash
+  - Read
   - Glob
 ---
 
-# EverMem — Multi-Agent Cloud Memory via EverMemOS
+# EverMem — Cross-Tool Long-Term Memory via EverMemOS
 
-This skill connects AI coding CLI tools to [EverMemOS](https://docs.evermind.ai) for persistent, semantically searchable long-term memory.
+Connects Claude Code, Codex CLI, Kimi, and Qwen Code to [EverMemOS](https://docs.evermind.ai)
+for persistent, semantically searchable memory across all your AI coding sessions.
+
+## Invocation
+
+| Tool | Command |
+|------|---------|
+| Claude Code | This skill auto-loads |
+| Codex CLI | `$evermem` |
+| Kimi CLI | `/skill:evermem` |
+| Qwen Code | `/skills` → select evermem |
+
+## Core Commands
+
+### Search memories (use BEFORE starting work)
+
+```bash
+evermem search --query "React hooks patterns"
+evermem search --query "user preferences" --method vector --top-k 5
+evermem search --query "debug session" --json
+```
+
+**Search methods:** `keyword` | `vector` | `hybrid` (default) | `agentic`
+
+### Sync memories (use AFTER finishing a session)
+
+```bash
+evermem run                          # auto-detect all agents
+evermem run --agents claude,codex    # specific agents only
+evermem run --since 2026-01-01T00:00:00Z
+evermem run --dry-run                # preview without uploading
+```
+
+## When to Use
+
+| Situation | Action |
+|-----------|--------|
+| Starting a new session | `evermem search --query "<topic>"` to recall past context |
+| User asks "what did we work on?" | `evermem search --query "<topic>"` |
+| Finishing a long session | `evermem run` to persist memories |
+| Background auto-sync | Daemon handles this automatically every N minutes |
 
 ## Supported Agents (auto-detected)
 
@@ -20,64 +71,18 @@ This skill connects AI coding CLI tools to [EverMemOS](https://docs.evermind.ai)
 | Kimi CLI | `~/.kimi/sessions/**/context.jsonl` |
 | Qwen Code | `~/.qwen/` or `$QWEN_SHARE_DIR` |
 
-## Tools
-
-### 1. add-memories — Ingest conversations from any agent
-
-Auto-detects installed CLI agents, extracts **only final responses** (no thinking, no tool calls), uploads to EverMemOS.
-
-```bash
-# Auto-detect all installed agents, process recent 5 sessions each
-evermem run
-
-# Specific agents only
-evermem run --agents claude,codex
-
-# Only sessions newer than a timestamp
-evermem run --since 2026-03-01T00:00:00Z
-
-# Dry run (print turns without uploading)
-evermem run --dry-run
-```
-
-### 2. search-memories — Semantic retrieval
-
-```bash
-# Hybrid search (recommended)
-evermem search --query "React hooks patterns"
-
-# Choose retrieval method
-evermem search --query "user preferences" --method vector --top-k 5
-
-# Raw JSON output
-evermem search --query "debug session" --json
-```
-
-**Search methods:** `keyword` | `vector` | `hybrid` (default) | `agentic`
-
-## When to Use
-
-| When | Command |
-|------|---------|
-| Before starting work | `evermem search --query "project context"` |
-| After finishing a session | `evermem run` |
-| Scheduled background sync | Handled automatically by daemon |
-
 ## Filtering Logic
 
-Each agent's extractor captures only:
-- ✅ User text messages
-- ✅ Final assistant text responses
-
-And filters out:
-- ❌ `thinking` / reasoning blocks (Claude extended thinking)
-- ❌ `tool_use` / `tool_result` / `tool_call` messages
-- ❌ System messages
-- ❌ Kimi protocol layer (`wire.jsonl`)
-- ❌ Streaming deduplication artifacts
+Only stores meaningful content:
+- ✅ User messages and final assistant responses
+- ❌ Thinking blocks, tool calls, system messages, streaming artifacts
 
 ## Configuration
 
-Stored at `~/.evermem/config.json`. Managed via:
-- CLI: `evermem setup`
-- Web UI: `http://localhost:7349` (when daemon is running)
+```bash
+evermem setup    # interactive wizard: API key, interval, agents
+evermem status   # show daemon status and recent runs
+evermem web      # open web dashboard (http://localhost:7349)
+```
+
+Config stored at `~/.evermem/config.json`.

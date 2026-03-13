@@ -27,19 +27,46 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const execAsync = promisify(exec);
 
 // ── Skill installer ───────────────────────────────────────────────────────────
-// Installs skill/SKILL.md + scripts/ into ~/.claude/skills/evermem/
-// so it's available in any Claude Code session after `evermem setup`.
+// Installs skill/SKILL.md into every detected AI CLI tool's skills directory.
+//
+// Target directories (same SKILL.md, each tool ignores unknown frontmatter):
+//   Claude Code  → ~/.claude/skills/evermem/SKILL.md
+//   Codex CLI    → ~/.codex/skills/evermem/SKILL.md
+//   Kimi CLI     → ~/.config/agents/skills/evermem/SKILL.md  (primary)
+//                  ~/.kimi/skills/evermem/SKILL.md            (fallback)
+//   Qwen Code    → ~/.qwen/skills/evermem/SKILL.md
 
-async function installSkill() {
-  const SKILL_SRC = join(__dirname, "..", "skill");
-  const SKILL_DEST = join(homedir(), ".claude", "skills", "evermem");
+const SKILL_TARGETS = [
+  // Claude Code
+  { id: "claude",  dir: join(homedir(), ".claude", "skills", "evermem"),          presence: join(homedir(), ".claude") },
+  // Codex CLI
+  { id: "codex",   dir: join(homedir(), ".codex",  "skills", "evermem"),          presence: join(homedir(), ".codex") },
+  // Kimi CLI — primary location (.config/agents is the preferred path per docs)
+  { id: "kimi",    dir: join(homedir(), ".config", "agents", "skills", "evermem"), presence: join(homedir(), ".kimi") },
+  // Kimi CLI — fallback
+  { id: "kimi2",   dir: join(homedir(), ".kimi",   "skills", "evermem"),           presence: join(homedir(), ".kimi") },
+  // Qwen Code
+  { id: "qwen",    dir: join(homedir(), ".qwen",   "skills", "evermem"),           presence: join(homedir(), ".qwen") },
+];
 
-  await mkdir(SKILL_DEST, { recursive: true });
+async function installSkill({ allTargets = false } = {}) {
+  const SKILL_SRC = join(__dirname, "..", "skill", "SKILL.md");
+  const results = [];
 
-  // Only need SKILL.md — all commands use the globally installed `evermem` CLI
-  await copyFile(join(SKILL_SRC, "SKILL.md"), join(SKILL_DEST, "SKILL.md"));
+  for (const target of SKILL_TARGETS) {
+    // Skip tools not installed on this machine (unless --all flag)
+    if (!allTargets && !existsSync(target.presence)) continue;
 
-  return SKILL_DEST;
+    try {
+      await mkdir(target.dir, { recursive: true });
+      await copyFile(SKILL_SRC, join(target.dir, "SKILL.md"));
+      results.push({ id: target.id, dir: target.dir, ok: true });
+    } catch (err) {
+      results.push({ id: target.id, dir: target.dir, ok: false, error: err.message });
+    }
+  }
+
+  return results;
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
@@ -147,15 +174,16 @@ program
 
     console.log(`\n✓ Configuration saved to ${CONFIG_PATH}`);
 
-    // Install skill to ~/.claude/skills/evermem/
-    console.log("\nInstalling evermem skill to Claude Code...");
-    try {
-      const dest = await installSkill();
-      console.log(`✓ Skill installed to ${dest}`);
-      console.log("  The 'evermem' skill is now available in any Claude Code session.");
-    } catch (err) {
-      console.warn(`  Warning: Could not install skill automatically: ${err.message}`);
-      console.warn("  Run `evermem install-skill` manually to install.");
+    // Install skill to all detected AI CLI tools
+    console.log("\nInstalling evermem skill to detected AI tools...");
+    const skillResults = await installSkill();
+    if (skillResults.length === 0) {
+      console.log("  No AI CLI tools detected. Run `evermem install-skill` after installing your tools.");
+    } else {
+      for (const r of skillResults) {
+        if (r.ok) console.log(`  ✓ ${r.id.replace("2", " (fallback)")} → ${r.dir}`);
+        else console.warn(`  ✗ ${r.id}: ${r.error}`);
+      }
     }
 
     console.log("\nNext steps:");
@@ -313,17 +341,39 @@ program
 // ── install-skill ────────────────────────────────────────────────────────────
 program
   .command("install-skill")
-  .description("Install the evermem skill to ~/.claude/skills/evermem/")
-  .action(async () => {
-    console.log("Installing evermem skill...");
-    try {
-      const dest = await installSkill();
-      console.log(`✓ Skill installed to ${dest}`);
-      console.log("  Restart Claude Code to pick up the new skill.");
-    } catch (err) {
-      console.error(`Failed: ${err.message}`);
-      process.exit(1);
+  .description("Install the evermem skill to all detected AI CLI tools")
+  .option("--all", "Install to all supported tools even if not detected")
+  .action(async (opts) => {
+    const toolNames = {
+      claude: "Claude Code",
+      codex:  "Codex CLI",
+      kimi:   "Kimi CLI",
+      kimi2:  "Kimi CLI (fallback)",
+      qwen:   "Qwen Code",
+    };
+    console.log("Installing evermem skill to AI CLI tools...\n");
+    const results = await installSkill({ allTargets: !!opts.all });
+    if (results.length === 0) {
+      console.log("No AI CLI tools detected on this machine.");
+      console.log("Install Claude Code, Codex CLI, Kimi, or Qwen Code first,");
+      console.log("then run `evermem install-skill` again.");
+      console.log("\nTo force install for all tools: evermem install-skill --all");
+      return;
     }
+    for (const r of results) {
+      const name = toolNames[r.id] ?? r.id;
+      if (r.ok) {
+        console.log(`  ✓ ${name}`);
+        console.log(`    → ${r.dir}`);
+      } else {
+        console.warn(`  ✗ ${name}: ${r.error}`);
+      }
+    }
+    console.log("\nRestart your AI tool to pick up the new skill.");
+    console.log("  Claude Code: restart session, type /evermem");
+    console.log("  Codex CLI:   restart session, type $evermem");
+    console.log("  Kimi CLI:    restart session, type /skill:evermem");
+    console.log("  Qwen Code:   restart session, type /skills");
   });
 
 // ── search ───────────────────────────────────────────────────────────────────

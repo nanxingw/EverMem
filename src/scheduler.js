@@ -15,6 +15,11 @@ const ADD_MEMORIES_SCRIPT = join(__dirname, "..", "scripts", "add-memories.mjs")
 let cronTask = null;
 let isRunning = false;
 let nextRun = null;
+let _broadcastFn = null;
+
+/** Register a function to broadcast events to SSE clients. */
+export function setBroadcast(fn) { _broadcastFn = fn; }
+function emit(event, data) { if (_broadcastFn) _broadcastFn(event, data); }
 
 /**
  * Run the memory extraction once.
@@ -27,6 +32,7 @@ export async function runOnce(config) {
 
   isRunning = true;
   const startTime = Date.now();
+  emit("run_started", { timestamp: new Date().toISOString() });
   console.log(`[scheduler] Starting memory extraction at ${new Date().toISOString()}`);
 
   return new Promise((resolve) => {
@@ -69,6 +75,11 @@ export async function runOnce(config) {
         await updateConfig({ lastRun: new Date().toISOString() });
       }
 
+      emit(stats.success ? "run_done" : "run_error", {
+        ...stats,
+        timestamp: new Date().toISOString(),
+      });
+
       console.log(`[scheduler] Done in ${duration}ms (exit ${code})`);
       resolve(stats);
     });
@@ -91,6 +102,7 @@ export async function startScheduler(getConfig) {
     const currentConfig = await getConfig();
     await runOnce(currentConfig);
     updateNextRun(intervalMinutes);
+    emit("tick", { nextRun: nextRun?.toISOString() ?? null });
   });
 
   updateNextRun(intervalMinutes);

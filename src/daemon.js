@@ -13,7 +13,7 @@ import { loadConfig, updateConfig, PID_FILE } from "./config.js";
 import { detectAgents } from "./detector.js";
 import { searchMemories } from "./evermemos.js";
 import { getRecentRuns } from "./logger.js";
-import { startScheduler, stopScheduler, runOnce, getStatus } from "./scheduler.js";
+import { startScheduler, stopScheduler, runOnce, getStatus, setBroadcast } from "./scheduler.js";
 import { writeFile, unlink } from "node:fs/promises";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -21,6 +21,22 @@ const WEB_DIST = join(__dirname, "..", "web", "dist");
 
 const app = express();
 app.use(express.json());
+
+// ── SSE broadcast ─────────────────────────────────────────────────────────────
+
+const sseClients = new Set();
+
+/**
+ * Broadcast a JSON event to all connected SSE clients.
+ * @param {string} event  Event name
+ * @param {object} data   JSON-serialisable payload
+ */
+export function broadcast(event, data) {
+  const msg = `event: ${event}\ndata: ${JSON.stringify(data)}\n\n`;
+  for (const res of sseClients) {
+    try { res.write(msg); } catch { sseClients.delete(res); }
+  }
+}
 
 // ── Serve Svelte frontend ────────────────────────────────────────────────────
 
@@ -93,6 +109,30 @@ app.post("/api/config", async (req, res) => {
   }
 });
 
+// SSE — real-time push events
+app.get("/api/events", (req, res) => {
+  res.setHeader("Content-Type", "text/event-stream");
+  res.setHeader("Cache-Control", "no-cache");
+  res.setHeader("Connection", "keep-alive");
+  res.setHeader("X-Accel-Buffering", "no");
+  res.flushHeaders();
+
+  sseClients.add(res);
+
+  // Send initial heartbeat
+  res.write(": ping\n\n");
+
+  // Heartbeat every 25 s to keep the connection alive
+  const hbTimer = setInterval(() => {
+    try { res.write(": ping\n\n"); } catch { /* client gone */ }
+  }, 25_000);
+
+  req.on("close", () => {
+    clearInterval(hbTimer);
+    sseClients.delete(res);
+  });
+});
+
 // Detect agents
 app.get("/api/detect", async (req, res) => {
   try {
@@ -126,8 +166,15 @@ app.post("/api/run", async (req, res) => {
     if (!config.apiKey) {
       return res.status(400).json({ error: "API key not configured" });
     }
+    broadcast("run_started", { timestamp: new Date().toISOString() });
     // Run async, respond immediately
-    runOnce(config).catch(console.error);
+    runOnce(config).then(async () => {
+      const runs = await getRecentRuns(20);
+      const cfg = await loadConfig();
+      broadcast("run_done", { timestamp: new Date().toISOString(), runs, lastRun: cfg.lastRun });
+    }).catch((err) => {
+      broadcast("run_error", { error: err.message, timestamp: new Date().toISOString() });
+    });
     res.json({ success: true, message: "Memory extraction started" });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -180,12 +227,22 @@ export async function startServer() {
   // Write PID file
   await writeFile(PID_FILE, String(process.pid), "utf-8");
 
+  // Wire scheduler broadcast → SSE
+  setBroadcast(broadcast);
+
   // Start scheduler
   await startScheduler(loadConfig);
+
+  // Broadcast scheduler status every second (countdown tick)
+  const tickInterval = setInterval(() => {
+    const s = getStatus();
+    if (s.nextRun) broadcast("tick", { nextRun: s.nextRun, isExecuting: s.isExecuting });
+  }, 1000);
 
   // Graceful shutdown
   const shutdown = async () => {
     console.log("\n[evermem] Shutting down...");
+    clearInterval(tickInterval);
     stopScheduler();
     try { await unlink(PID_FILE); } catch { /* ignore */ }
     process.exit(0);
