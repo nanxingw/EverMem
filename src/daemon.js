@@ -15,6 +15,7 @@ import { searchMemories } from "./evermemos.js";
 import { getRecentRuns } from "./logger.js";
 import { startScheduler, stopScheduler, runOnce, getStatus, setBroadcast } from "./scheduler.js";
 import { writeFile, unlink } from "node:fs/promises";
+import { createServer } from "node:net";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const WEB_DIST = join(__dirname, "..", "web", "dist");
@@ -210,9 +211,27 @@ app.get("*", (req, res) => {
 
 // ── Start server ─────────────────────────────────────────────────────────────
 
+function findFreePort(preferred) {
+  return new Promise((resolve) => {
+    const srv = createServer();
+    srv.listen(preferred, "127.0.0.1", () => {
+      const { port } = srv.address();
+      srv.close(() => resolve(port));
+    });
+    srv.on("error", () => {
+      // preferred port busy — let OS pick any free port
+      const srv2 = createServer();
+      srv2.listen(0, "127.0.0.1", () => {
+        const { port } = srv2.address();
+        srv2.close(() => resolve(port));
+      });
+    });
+  });
+}
+
 export async function startServer() {
   const config = await loadConfig();
-  const port = config.port ?? 7349;
+  const port = await findFreePort(config.port ?? 7349);
 
   await new Promise((resolve, reject) => {
     app.listen(port, "127.0.0.1", (err) => {
@@ -223,6 +242,9 @@ export async function startServer() {
       }
     });
   });
+
+  // Persist the actual port so CLI and status commands know where to find the UI
+  await updateConfig({ port });
 
   // Write PID file
   await writeFile(PID_FILE, String(process.pid), "utf-8");
