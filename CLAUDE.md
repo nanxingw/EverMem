@@ -63,3 +63,30 @@ Header：毛玻璃奶油白半透明，`backdrop-filter: blur(20px) saturate(1.8
 
 5. **中英无缝**
    语言切换不应有布局抖动，共享同一套间距和字号体系。
+
+## Project Context
+<!-- last synced: 2026-03-13 -->
+
+### 开发现状 / Current State
+- v0.1.0，已发布至 GitHub（https://github.com/nanxingw/EverMem），npm 包名 `evermem-async`
+- 核心功能全部可用：CLI、后台 daemon（每 30 分钟 cron）、Web UI（Dashboard / Config / Search 三 Tab）
+- 支持四大 AI 代理：Claude Code、Codex CLI、Qwen Code、Kimi CLI，自动检测并安装对应 skill
+- Daemon 通过 SSE 向前端推送实时状态，运行日志写入 `~/.evermem/runs.jsonl`
+- 端口自动分配（`port: 0`），实际端口写入 `~/.evermem/config.json` 供前端使用，避免硬编码冲突
+- 配置持久化于 `~/.evermem/config.json`，包含 API Key、lastRun、同步间隔、已启用 agents 列表
+- UI 已升级为亮色暖调主题（2026-03），带毛玻璃 Header 和 ambient orbs
+
+### 开发历程 / Key Decisions
+- 从 skill-evolver 项目中剥离 evermem 技能，独立成 npm 包——目标是"单行命令接入"
+- 记忆同步采用增量策略：首次同步最近 5 会话，后续以 `lastRun` 时间戳防重复上传
+- JSONL 日志提取过滤 `reasoning` 和 `tool_use` 块，只保留用户消息 + 助手最终回复
+- Skill 通过 `evermem install-skill` 自动部署到各工具目录，SKILL.md 格式兼容各平台字段差异
+- Cursor 曾因旧版 `detector.js` 未显示，重启后修复；端口冲突通过 `port: 0` 彻底解决
+- 引入 `evermem-sync-context` skill，让 AI 工具可一键加载项目历史上下文（flat skills/ 布局）
+
+### 未来方向 / Roadmap
+- P0：npm 正式发布（当前为 GitHub 仓库安装，需走 npm publish 流程）
+- P1：Web UI Search 功能完善（当前后端已有 `/search` 接口，前端体验可深化）
+- P1：更多 agent 支持（如 Windsurf、Gemini CLI 等新兴工具）
+- P2：Web UI 国际化（i18n）状态与布局稳定性验证
+- P2：skill-evolver 与 evermem-async 的生态协同（技能自动进化触发记忆同步）

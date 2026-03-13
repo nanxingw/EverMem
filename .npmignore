@@ -1,0 +1,23 @@
+# Sensitive / private
+.env
+.env.*
+.claude/
+
+# Development files
+node_modules/
+web/node_modules/
+web/src/
+web/vite.config.js
+web/index.html
+web/public/
+web/package-lock.json
+web/package.json
+
+# Docs/CI
+docs/
+CLAUDE.md
+install.sh
+.gitignore
+
+# Logs
+*.log

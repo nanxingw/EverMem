@@ -4,7 +4,7 @@
   "description": "One-line CLI tool to connect any AI coding agent to EverMemOS long-term memory",
   "type": "module",
   "bin": {
-    "evermem": "./bin/evermem.js"
+    "evermem": "bin/evermem.js"
   },
   "scripts": {
     "dev": "node src/daemon.js",
@@ -37,6 +37,6 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/nanxingw/EverMem"
+    "url": "git+https://github.com/nanxingw/EverMem.git"
   }
 }
