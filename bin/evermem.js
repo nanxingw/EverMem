@@ -39,6 +39,8 @@ const execAsync = promisify(exec);
 const SKILL_TARGETS = [
   // Claude Code
   { id: "claude",  dir: join(homedir(), ".claude", "skills", "evermem"),          presence: join(homedir(), ".claude") },
+  // Cursor IDE
+  { id: "cursor",  dir: join(homedir(), ".cursor", "skills", "evermem"),          presence: join(homedir(), ".cursor") },
   // Codex CLI
   { id: "codex",   dir: join(homedir(), ".codex",  "skills", "evermem"),          presence: join(homedir(), ".codex") },
   // Kimi CLI — primary location (.config/agents is the preferred path per docs)
@@ -346,6 +348,7 @@ program
   .action(async (opts) => {
     const toolNames = {
       claude: "Claude Code",
+      cursor: "Cursor IDE",
       codex:  "Codex CLI",
       kimi:   "Kimi CLI",
       kimi2:  "Kimi CLI (fallback)",

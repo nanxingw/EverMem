@@ -28,6 +28,7 @@ for persistent, semantically searchable memory across all your AI coding session
 | Tool | Command |
 |------|---------|
 | Claude Code | This skill auto-loads |
+| Cursor IDE | This skill auto-loads, or type `/evermem` |
 | Codex CLI | `$evermem` |
 | Kimi CLI | `/skill:evermem` |
 | Qwen Code | `/skills` → select evermem |
