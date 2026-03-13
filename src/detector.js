@@ -52,6 +52,15 @@ const AGENT_DEFS = [
     extractScript: "extract-claude.mjs",
   },
   {
+    id: "cursor",
+    name: "Cursor IDE",
+    checkDir: join(homedir(), ".cursor", "chats"),
+    logDir: join(homedir(), ".cursor", "chats"),
+    logPattern: /\.json$/,
+    description: "Cursor AI IDE",
+    extractScript: "extract-cursor.mjs",
+  },
+  {
     id: "codex",
     name: "Codex CLI",
     checkDir: join(homedir(), ".codex", "sessions"),

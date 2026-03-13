@@ -61,6 +61,11 @@
       bg: "oklch(62% 0.14 38 / 0.1)",
       border: "oklch(62% 0.14 38 / 0.22)",
     },
+    cursor: {
+      logo: "/logos/cursor.webp",
+      bg: "oklch(96% 0.005 60 / 0.9)",
+      border: "oklch(80% 0.01 60 / 0.5)",
+    },
     codex: {
       logo: "/logos/codex.svg",
       bg: "oklch(20% 0.01 285 / 0.8)",
@@ -234,9 +239,11 @@
   }
 
   /* Claude: orange mark, no background padding needed */
-  .agent-logo-img.claude { width: 26px; height: 26px; }
+  .agent-logo-img.claude  { width: 26px; height: 26px; }
+  /* Cursor: cube icon with rounded square background — fill the badge */
+  .agent-logo-img.cursor  { width: 44px; height: 44px; border-radius: 11px; }
   /* Codex: black circle icon */
-  .agent-logo-img.codex  { width: 30px; height: 30px; border-radius: 6px; }
+  .agent-logo-img.codex   { width: 30px; height: 30px; border-radius: 6px; }
   /* Kimi: dark background image, fill the badge */
   .agent-logo-img.kimi   { width: 44px; height: 44px; border-radius: 11px; }
   /* Qwen: colorful hexagonal icon */
