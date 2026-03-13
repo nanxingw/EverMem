@@ -352,7 +352,7 @@
   @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
 
   /* Error state */
-  .error-state { display: flex; align-items: center; gap: 0.75rem; padding: 1.25rem; background: oklch(62% 0.2 25 / 0.08); border: 1px solid oklch(62% 0.2 25 / 0.2); border-radius: var(--radius-lg); color: var(--red); }
+  .error-state { display: flex; align-items: center; gap: 0.75rem; padding: 1.25rem; background: oklch(52% 0.2 22 / 0.06); border: 1px solid oklch(52% 0.2 22 / 0.18); border-radius: var(--radius-lg); color: var(--red); }
   .error-icon { flex-shrink: 0; }
   .error-state p { font-size: 0.88rem; }
 
@@ -388,8 +388,8 @@
   .btn-accent { background: var(--accent); color: #fff; }
   .btn-accent:hover:not(:disabled) { background: var(--accent-2); transform: translateY(-1px); box-shadow: 0 4px 16px var(--accent-glow); }
   .btn-accent:active:not(:disabled) { transform: translateY(0); box-shadow: none; }
-  .btn-danger { background: oklch(38% 0.12 15); color: oklch(85% 0.08 15); }
-  .btn-danger:hover:not(:disabled) { background: oklch(44% 0.16 15); transform: translateY(-1px); }
+  .btn-danger { background: oklch(52% 0.2 22 / 0.1); color: oklch(45% 0.2 22); border: 1px solid oklch(52% 0.2 22 / 0.25); }
+  .btn-danger:hover:not(:disabled) { background: oklch(52% 0.2 22 / 0.16); transform: translateY(-1px); }
   .btn-danger:active:not(:disabled) { transform: translateY(0); }
   .btn:disabled { opacity: 0.4; cursor: not-allowed; }
   .sync-btn.done { background: var(--green); }
@@ -411,8 +411,8 @@
   .ns-interval { }
   .tag { display: inline-flex; align-items: center; font-size: 0.72rem; font-weight: 500; padding: 0.18rem 0.55rem; border-radius: 20px; letter-spacing: 0.02em; }
   .tag-muted { background: var(--surface-2); color: var(--text-3); border: 1px solid var(--border-soft); }
-  .tag-accent { background: var(--accent-dim); color: var(--accent-2); border: 1px solid oklch(65% 0.2 285 / 0.2); }
-  .tag-red { background: oklch(62% 0.2 25 / 0.12); color: var(--red); border: 1px solid oklch(62% 0.2 25 / 0.2); }
+  .tag-accent { background: var(--accent-dim); color: var(--accent-2); border: 1px solid oklch(58% 0.19 45 / 0.2); }
+  .tag-red { background: oklch(52% 0.2 22 / 0.08); color: var(--red); border: 1px solid oklch(52% 0.2 22 / 0.2); }
 
   /* Agents card */
   .agents-card { padding: 1.25rem 1.4rem; background: var(--surface); border: 1px solid var(--border-soft); border-radius: var(--radius-lg); display: flex; flex-direction: column; gap: 0.6rem; }

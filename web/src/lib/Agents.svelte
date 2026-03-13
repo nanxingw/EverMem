@@ -68,18 +68,18 @@
     },
     codex: {
       logo: "/logos/codex.svg",
-      bg: "oklch(20% 0.01 285 / 0.8)",
-      border: "oklch(35% 0.02 285 / 0.5)",
+      bg: "oklch(22% 0.01 60 / 0.08)",
+      border: "oklch(22% 0.01 60 / 0.2)",
     },
     kimi: {
       logo: "/logos/kimi.png",
-      bg: "oklch(14% 0.01 285 / 0.9)",
-      border: "oklch(35% 0.04 285 / 0.4)",
+      bg: "oklch(20% 0.01 60 / 0.07)",
+      border: "oklch(20% 0.01 60 / 0.18)",
     },
     qwen: {
       logo: "/logos/qwen.png",
-      bg: "oklch(60% 0.2 290 / 0.1)",
-      border: "oklch(60% 0.2 290 / 0.25)",
+      bg: "oklch(58% 0.18 290 / 0.08)",
+      border: "oklch(58% 0.18 290 / 0.2)",
     },
   };
 </script>

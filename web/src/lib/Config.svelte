@@ -225,7 +225,7 @@
     width: 24px;
     height: 24px;
     background: var(--accent-dim);
-    border: 1px solid oklch(65% 0.2 285 / 0.2);
+    border: 1px solid oklch(58% 0.19 45 / 0.2);
     border-radius: 6px;
     color: var(--accent-2);
     flex-shrink: 0;

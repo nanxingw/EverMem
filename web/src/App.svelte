@@ -36,9 +36,9 @@
     <div class="brand">
       <div class="brain-mark">
         <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-          <path d="M10 2C6.69 2 4 4.69 4 8c0 1.5.54 2.87 1.43 3.93L4 18h12l-1.43-6.07A5.96 5.96 0 0016 8c0-3.31-2.69-6-6-6z" fill="oklch(68% 0.18 285)"/>
-          <path d="M7.5 8.5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5-.67 1.5-1.5 1.5-1.5-.67-1.5-1.5z" fill="oklch(90% 0.06 285)"/>
-          <path d="M10 2v4M7 4.27L9 7M13 4.27L11 7" stroke="oklch(80% 0.12 285)" stroke-width="1" stroke-linecap="round" opacity=".6"/>
+          <path d="M10 2C6.69 2 4 4.69 4 8c0 1.5.54 2.87 1.43 3.93L4 18h12l-1.43-6.07A5.96 5.96 0 0016 8c0-3.31-2.69-6-6-6z" fill="oklch(62% 0.19 45)"/>
+          <path d="M7.5 8.5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5-.67 1.5-1.5 1.5-1.5-.67-1.5-1.5z" fill="oklch(97% 0.02 75)"/>
+          <path d="M10 2v4M7 4.27L9 7M13 4.27L11 7" stroke="oklch(85% 0.1 55)" stroke-width="1" stroke-linecap="round" opacity=".6"/>
         </svg>
       </div>
       <span class="brand-name">EverMem</span>
@@ -81,26 +81,26 @@
 <style>
   /* ── Design tokens ── */
   :global(:root) {
-    --bg:           oklch(10% 0.02 285);
-    --surface:      oklch(14% 0.025 285);
-    --surface-2:    oklch(17% 0.03 285);
-    --surface-3:    oklch(20% 0.03 285);
-    --border:       oklch(25% 0.03 285);
-    --border-soft:  oklch(22% 0.025 285);
+    --bg:           oklch(97% 0.012 75);
+    --surface:      oklch(99% 0.006 80);
+    --surface-2:    oklch(94% 0.018 72);
+    --surface-3:    oklch(91% 0.022 70);
+    --border:       oklch(84% 0.03 68);
+    --border-soft:  oklch(89% 0.02 72);
 
-    --text:         oklch(93% 0.02 285);
-    --text-2:       oklch(70% 0.04 285);
-    --text-3:       oklch(50% 0.04 285);
+    --text:         oklch(22% 0.04 55);
+    --text-2:       oklch(42% 0.05 58);
+    --text-3:       oklch(60% 0.04 62);
 
-    --accent:       oklch(65% 0.2 285);
-    --accent-2:     oklch(72% 0.18 285);
-    --accent-glow:  oklch(65% 0.2 285 / 0.15);
-    --accent-dim:   oklch(65% 0.2 285 / 0.1);
+    --accent:       oklch(58% 0.19 45);
+    --accent-2:     oklch(52% 0.2 42);
+    --accent-glow:  oklch(58% 0.19 45 / 0.18);
+    --accent-dim:   oklch(58% 0.19 45 / 0.08);
 
-    --green:        oklch(68% 0.18 155);
-    --green-glow:   oklch(68% 0.18 155 / 0.2);
-    --red:          oklch(62% 0.2 25);
-    --amber:        oklch(75% 0.17 75);
+    --green:        oklch(50% 0.15 145);
+    --green-glow:   oklch(50% 0.15 145 / 0.15);
+    --red:          oklch(52% 0.2 22);
+    --amber:        oklch(62% 0.17 72);
 
     --radius-sm:    6px;
     --radius:       10px;
@@ -164,7 +164,7 @@
     height: 500px;
     top: -200px;
     right: -100px;
-    background: oklch(65% 0.2 285 / 0.06);
+    background: oklch(72% 0.18 55 / 0.12);
   }
 
   .orb-2 {
@@ -172,7 +172,7 @@
     height: 400px;
     bottom: -150px;
     left: -100px;
-    background: oklch(60% 0.15 240 / 0.05);
+    background: oklch(78% 0.14 80 / 0.1);
   }
 
   /* ── Layout ── */
@@ -192,9 +192,9 @@
     padding: 0 1.5rem;
     height: 52px;
     border-bottom: 1px solid var(--border-soft);
-    background: oklch(12% 0.02 285 / 0.85);
-    backdrop-filter: blur(20px) saturate(1.5);
-    -webkit-backdrop-filter: blur(20px) saturate(1.5);
+    background: oklch(98% 0.01 78 / 0.88);
+    backdrop-filter: blur(20px) saturate(1.8);
+    -webkit-backdrop-filter: blur(20px) saturate(1.8);
     position: sticky;
     top: 0;
     z-index: 100;
@@ -217,7 +217,7 @@
     height: 28px;
     background: var(--accent-dim);
     border-radius: 7px;
-    border: 1px solid oklch(65% 0.2 285 / 0.2);
+    border: 1px solid oklch(58% 0.19 45 / 0.2);
   }
 
   .brand-name {
@@ -232,7 +232,7 @@
     font-weight: 500;
     color: var(--accent-2);
     background: var(--accent-dim);
-    border: 1px solid oklch(65% 0.2 285 / 0.2);
+    border: 1px solid oklch(58% 0.19 45 / 0.2);
     padding: 0.1rem 0.45rem;
     border-radius: 20px;
     letter-spacing: 0.03em;
@@ -439,7 +439,7 @@
   :global(.tag-accent) {
     background: var(--accent-dim);
     color: var(--accent-2);
-    border: 1px solid oklch(65% 0.2 285 / 0.2);
+    border: 1px solid oklch(58% 0.19 45 / 0.2);
   }
 
   :global(.tag-green) {
