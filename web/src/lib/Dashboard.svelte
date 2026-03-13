@@ -8,6 +8,7 @@
   let error = null;
   let syncing = false;
   let syncDone = false;
+  let stopping = false;
   let secondsToNext = null;
   let isExecuting = false;
   let pollTimer;
@@ -44,6 +45,19 @@
     const total = status.config.interval * 60;
     return Math.max(0, Math.min(100, ((total - secondsToNext) / total) * 100));
   })();
+
+  async function stopDaemon() {
+    if (stopping) return;
+    stopping = true;
+    try {
+      await fetch("/api/stop", { method: "POST" });
+    } catch { /* daemon closed the connection — expected */ }
+    // Daemon is gone; reflect in UI
+    setTimeout(() => {
+      status = status ? { ...status, running: false } : status;
+      stopping = false;
+    }, 800);
+  }
 
   async function triggerRun() {
     if (syncing) return;
@@ -188,6 +202,21 @@
               <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M11 7A4 4 0 013.27 9M3 7A4 4 0 0110.73 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M11 5v2h-2M3 9v-2h2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
               {t("manualRun")}
             {/if}
+          </button>
+          <button
+            class="btn btn-danger stop-btn"
+            on:click={stopDaemon}
+            disabled={stopping}
+            title="Stop daemon"
+          >
+            {#if stopping}
+              <span class="spin-icon">
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="4" stroke="currentColor" stroke-width="1.5" stroke-dasharray="7 9" stroke-linecap="round"/></svg>
+              </span>
+            {:else}
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><rect x="2.5" y="2.5" width="7" height="7" rx="1.5" fill="currentColor"/></svg>
+            {/if}
+            {t("stopDaemon") || "停止"}
           </button>
         {:else}
           <span class="no-key-hint">{t("apiKeyMissing")}</span>
@@ -359,8 +388,12 @@
   .btn-accent { background: var(--accent); color: #fff; }
   .btn-accent:hover:not(:disabled) { background: var(--accent-2); transform: translateY(-1px); box-shadow: 0 4px 16px var(--accent-glow); }
   .btn-accent:active:not(:disabled) { transform: translateY(0); box-shadow: none; }
+  .btn-danger { background: oklch(38% 0.12 15); color: oklch(85% 0.08 15); }
+  .btn-danger:hover:not(:disabled) { background: oklch(44% 0.16 15); transform: translateY(-1px); }
+  .btn-danger:active:not(:disabled) { transform: translateY(0); }
   .btn:disabled { opacity: 0.4; cursor: not-allowed; }
   .sync-btn.done { background: var(--green); }
+  .hero-right { display: flex; gap: 0.5rem; align-items: center; }
   .spin-icon { display: flex; animation: spin 0.8s linear infinite; }
   @keyframes spin { to { transform: rotate(360deg); } }
 

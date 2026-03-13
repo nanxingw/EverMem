@@ -204,6 +204,11 @@ app.get("/api/search", async (req, res) => {
   }
 });
 
+app.post("/api/stop", (req, res) => {
+  res.json({ ok: true, message: "Daemon shutting down" });
+  setTimeout(() => process.emit("SIGTERM"), 300);
+});
+
 // SPA fallback
 app.get("*", (req, res) => {
   res.sendFile(join(WEB_DIST, "index.html"));
