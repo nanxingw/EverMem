@@ -26,6 +26,7 @@ export const translations = {
 
     // Config
     configTitle: "配置",
+    configSubtitle: "管理 API 凭证与同步偏好设置",
     apiKey: "EverMemOS API Key",
     apiKeyPlaceholder: "输入你的 API Key",
     apiKeyHelp: "从 evermind.ai 获取",
@@ -45,6 +46,7 @@ export const translations = {
 
     // Agents
     agentsTitle: "Agent 管理",
+    agentsSubtitle: "管理参与记忆同步的 AI 编程工具",
     detectAgents: "重新检测",
     detecting: "检测中...",
     detected: "已检测",
@@ -58,6 +60,7 @@ export const translations = {
 
     // Search
     searchTitle: "记忆搜索",
+    searchSubtitle: "语义搜索所有已存储的历史记忆",
     searchPlaceholder: "搜索记忆...",
     searchMethod: "搜索方式",
     keyword: "关键词",
@@ -106,6 +109,7 @@ export const translations = {
 
     // Config
     configTitle: "Configuration",
+    configSubtitle: "Manage API credentials and sync preferences",
     apiKey: "EverMemOS API Key",
     apiKeyPlaceholder: "Enter your API Key",
     apiKeyHelp: "Get from evermind.ai",
@@ -125,6 +129,7 @@ export const translations = {
 
     // Agents
     agentsTitle: "Agent Management",
+    agentsSubtitle: "Manage which AI coding tools contribute to your memory",
     detectAgents: "Re-detect",
     detecting: "Detecting...",
     detected: "Detected",
@@ -138,6 +143,7 @@ export const translations = {
 
     // Search
     searchTitle: "Memory Search",
+    searchSubtitle: "Semantic search across your stored memories",
     searchPlaceholder: "Search memories...",
     searchMethod: "Search Method",
     keyword: "Keyword",

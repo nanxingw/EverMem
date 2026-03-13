@@ -18,6 +18,14 @@
 
 ---
 
+## Web 控制台预览 / UI Preview
+
+![EverMem Web UI](docs/ui-preview.png)
+
+> 左上：Dashboard 实时状态 · 右上：Agent 管理 · 左下：配置中心 · 右下：记忆语义搜索
+
+---
+
 ## 快速开始 / Quick Start
 
 ### 方式一：npm 安装（推荐）
