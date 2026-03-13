@@ -46,7 +46,7 @@ curl -fsSL https://raw.githubusercontent.com/nanxingw/EverMem/main/install.sh | 
 
 交互式向导会引导你完成：
 
-1. 输入 **EverMemOS API Key**（从 [evermind.ai](https://evermind.ai) 获取）
+1. 输入 **EverMemOS API Key**（从 [console.evermind.ai](https://console.evermind.ai) 申请获取）
 2. 设置**自动同步间隔**（分钟，默认 30）
 3. 设置**用户 ID**（用于记忆隔离，默认 `evermem-user`）
 4. 设置 **Web UI 端口**（默认 7349）
@@ -204,6 +204,20 @@ AI Tool Session → JSONL Logs → Extract & Filter → EverMemOS API → Long-t
 |----------|-------------|
 | `EVERMEMOS_API_KEY` | EverMemOS API Key（优先于配置文件中的 apiKey）|
 | `QWEN_SHARE_DIR` | Qwen Code 自定义数据目录（默认 `~/.qwen`）|
+
+---
+
+## 获取 API Key / Get Your API Key
+
+前往 **[console.evermind.ai](https://console.evermind.ai)** 注册并申请 EverMemOS API Key，然后在 `evermem setup` 时填入，或直接写入配置文件：
+
+```bash
+# 方式一：通过 setup 向导填入
+evermem setup
+
+# 方式二：直接设置环境变量
+export EVERMEMOS_API_KEY=your_api_key_here
+```
 
 ---
 
