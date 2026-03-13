@@ -11,7 +11,7 @@
 | Tool | Log Location | Status |
 |------|-------------|--------|
 | [Claude Code](https://claude.ai/claude-code) | `~/.claude/projects/**/*.jsonl` | ✅ |
-| [Cursor IDE](https://cursor.com) | `~/.cursor/chats/**/*.json` | ✅ |
+| [Cursor IDE](https://cursor.com) | `~/.cursor/chats/**/<session>/store.db` | ✅ |
 | [Codex CLI](https://github.com/openai/codex) | `~/.codex/sessions/**/rollout-*.jsonl` | ✅ |
 | [Kimi CLI](https://github.com/MoonshotAI/kimi-cli) | `~/.kimi/sessions/**/context.jsonl` | ✅ |
 | [Qwen Code](https://github.com/QwenLM/qwen-code) | `~/.qwen/` or `$QWEN_SHARE_DIR` | ✅ |
@@ -96,17 +96,58 @@ AI Tool Session → JSONL Logs → Extract & Filter → EverMemOS API → Long-t
 
 ## Skill 集成 / AI Tool Skill Integration
 
-`evermem setup` 或 `evermem install-skill` 会自动把 evermem skill 安装到所有已检测到的工具：
+`evermem setup` 或 `evermem install-skill` 会自动把两个 skill 安装到所有已检测到的工具：
 
-| Tool | Skill 路径 | 调用方式 |
-|------|-----------|--------|
-| Claude Code | `~/.claude/skills/evermem/SKILL.md` | 自动加载，或输入 `/evermem` |
-| Cursor IDE | `~/.cursor/skills/evermem/SKILL.md` | 自动加载，或输入 `/evermem` |
-| Codex CLI | `~/.codex/skills/evermem/SKILL.md` | 输入 `$evermem` |
-| Kimi CLI | `~/.config/agents/skills/evermem/SKILL.md` | 输入 `/skill:evermem` |
-| Qwen Code | `~/.qwen/skills/evermem/SKILL.md` | 输入 `/skills` 选择 evermem |
+| Tool | `/evermem` | `/evermem-sync-context` |
+|------|-----------|------------------------|
+| Claude Code | 自动加载，或 `/evermem` | `/evermem-sync-context` |
+| Cursor IDE | 自动加载，或 `/evermem` | `/evermem-sync-context` |
+| Codex CLI | `$evermem` | — |
+| Kimi CLI | `/skill:evermem` | — |
+| Qwen Code | `/skills` 选择 evermem | — |
 
-Skill 安装后，AI 工具在会话开始时会自动加载 evermem 记忆上下文。
+---
+
+## /evermem-sync-context — 项目上下文一键同步
+
+> 每次开新会话都要重新解释项目背景？这个 skill 解决这个问题。
+
+在任意项目目录下运行 `/evermem-sync-context`，AI 自动完成：
+
+1. **跨工具记忆聚合** — 同时搜索你在 Claude Code、Cursor、Codex 等所有工具中关于这个项目的历史对话，不遗漏任何工具的上下文
+2. **五维度智能检索** — 分别搜索开发进展、架构决策、Bug 修复、Roadmap、现状评估，覆盖项目全貌
+3. **Git 历史融合** — 结合最近 30 条提交记录，让 AI 理解真实的演进节奏，而非仅靠对话推测
+4. **多工具 config 文件适配** — 自动写入当前 AI 工具对应的配置文件：Claude Code → `CLAUDE.md`、Cursor → `.cursorrules`、Codex → `AGENTS.md`，无需手动指定
+5. **非破坏性写入** — 保留 `CLAUDE.md` 中所有已有内容，只更新 `## Project Context` 区块，不会覆盖你手写的设计规范、品牌准则等
+6. **三层结构输出** — 固定输出「开发现状 / Key Decisions / Roadmap」三段，让 AI 每次都能快速定位项目坐标
+7. **防幻觉机制** — 只基于搜索到的 EverMem 记忆和 git log 撰写，不允许 AI 自行推断或捏造功能
+8. **同步时间戳** — 自动写入 `<!-- last synced: YYYY-MM-DD -->`，下次打开 CLAUDE.md 一眼知道上下文新鲜度
+9. **可重复运行** — 项目演进后随时重跑，每次都会用最新记忆覆盖旧的 Project Context，保持上下文始终最新
+10. **零配置，随项目走** — 任意项目目录下都可运行，无需提前配置项目名或路径，自动从 `package.json` / `pyproject.toml` 等读取
+
+```bash
+# 在任意项目目录，开新会话时运行一次
+/evermem-sync-context
+```
+
+运行后，`CLAUDE.md` 会自动追加类似：
+
+```markdown
+## Project Context
+<!-- last synced: 2026-03-13 -->
+
+### 开发现状 / Current State
+- v0.1.0：CLI + Web UI + Daemon 全链路完成，5 个 AI 工具全部接入
+- 技术栈：Node.js ESM + Express + Svelte + SQLite（Cursor）+ EverMemOS API
+
+### 开发历程 / Key Decisions
+- Cursor 使用 SQLite store.db，需用 Python3 处理 binary protobuf blob
+- skill 安装采用平铺 skills/ 目录，每个 skill 独立子目录，安装器自动扫描
+
+### 未来方向 / Roadmap
+- P0: npm publish 发布 v0.1.0
+- P1: Kimi / Qwen skill 调用方式验证
+```
 
 ---
 
