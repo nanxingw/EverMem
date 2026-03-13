@@ -12,11 +12,12 @@
  */
 
 import { Command } from "commander";
-import { readFile, access } from "node:fs/promises";
+import { readFile, copyFile, mkdir } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import { spawn, exec } from "node:child_process";
 import { promisify } from "node:util";
 import { join, dirname } from "node:path";
+import { homedir } from "node:os";
 import { fileURLToPath } from "node:url";
 import { loadConfig, updateConfig, PID_FILE, CONFIG_PATH } from "../src/config.js";
 import { detectAgents } from "../src/detector.js";
@@ -24,6 +25,22 @@ import { getRecentRuns } from "../src/logger.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const execAsync = promisify(exec);
+
+// ── Skill installer ───────────────────────────────────────────────────────────
+// Installs skill/SKILL.md + scripts/ into ~/.claude/skills/evermem/
+// so it's available in any Claude Code session after `evermem setup`.
+
+async function installSkill() {
+  const SKILL_SRC = join(__dirname, "..", "skill");
+  const SKILL_DEST = join(homedir(), ".claude", "skills", "evermem");
+
+  await mkdir(SKILL_DEST, { recursive: true });
+
+  // Only need SKILL.md — all commands use the globally installed `evermem` CLI
+  await copyFile(join(SKILL_SRC, "SKILL.md"), join(SKILL_DEST, "SKILL.md"));
+
+  return SKILL_DEST;
+}
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -129,9 +146,21 @@ program
     });
 
     console.log(`\n✓ Configuration saved to ${CONFIG_PATH}`);
+
+    // Install skill to ~/.claude/skills/evermem/
+    console.log("\nInstalling evermem skill to Claude Code...");
+    try {
+      const dest = await installSkill();
+      console.log(`✓ Skill installed to ${dest}`);
+      console.log("  The 'evermem' skill is now available in any Claude Code session.");
+    } catch (err) {
+      console.warn(`  Warning: Could not install skill automatically: ${err.message}`);
+      console.warn("  Run `evermem install-skill` manually to install.");
+    }
+
     console.log("\nNext steps:");
-    console.log("  evermem start --daemon   # Start in background");
-    console.log("  evermem web              # Open web dashboard");
+    console.log("  evermem start --daemon   # Start background daemon");
+    console.log("  evermem web              # Open Web UI");
     console.log("  evermem run              # Manually sync memories now\n");
   });
 
@@ -279,6 +308,43 @@ program
     console.log(`Opening ${url}...`);
     const { default: open } = await import("open");
     await open(url);
+  });
+
+// ── install-skill ────────────────────────────────────────────────────────────
+program
+  .command("install-skill")
+  .description("Install the evermem skill to ~/.claude/skills/evermem/")
+  .action(async () => {
+    console.log("Installing evermem skill...");
+    try {
+      const dest = await installSkill();
+      console.log(`✓ Skill installed to ${dest}`);
+      console.log("  Restart Claude Code to pick up the new skill.");
+    } catch (err) {
+      console.error(`Failed: ${err.message}`);
+      process.exit(1);
+    }
+  });
+
+// ── search ───────────────────────────────────────────────────────────────────
+program
+  .command("search")
+  .description("Search stored memories in EverMemOS")
+  .requiredOption("--query <text>", "Search query")
+  .option("--method <method>", "keyword | vector | hybrid | agentic", "hybrid")
+  .option("--top-k <n>", "Number of results", "10")
+  .option("--json", "Output raw JSON")
+  .action(async (opts) => {
+    const config = await loadConfig();
+    const scriptPath = join(__dirname, "..", "scripts", "search-memories.mjs");
+    const args = ["--query", opts.query, "--method", opts.method, "--top-k", opts.topK];
+    if (opts.json) args.push("--json");
+
+    const child = spawn(process.execPath, [scriptPath, ...args], {
+      stdio: "inherit",
+      env: { ...process.env, EVERMEMOS_API_KEY: config.apiKey },
+    });
+    child.on("close", (code) => process.exit(code ?? 0));
   });
 
 program.parse();
