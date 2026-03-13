@@ -12,7 +12,7 @@
  */
 
 import { Command } from "commander";
-import { readFile, copyFile, mkdir } from "node:fs/promises";
+import { readFile, copyFile, mkdir, cp } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import { spawn, exec } from "node:child_process";
 import { promisify } from "node:util";
@@ -27,44 +27,47 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const execAsync = promisify(exec);
 
 // ── Skill installer ───────────────────────────────────────────────────────────
-// Installs skill/SKILL.md into every detected AI CLI tool's skills directory.
+// skills/ mirrors the ~/.claude/skills/ layout exactly — one subdirectory per
+// skill. Each directory is copied verbatim into the target tool's skills folder.
 //
-// Target directories (same SKILL.md, each tool ignores unknown frontmatter):
-//   Claude Code  → ~/.claude/skills/evermem/SKILL.md
-//   Codex CLI    → ~/.codex/skills/evermem/SKILL.md
-//   Kimi CLI     → ~/.config/agents/skills/evermem/SKILL.md  (primary)
-//                  ~/.kimi/skills/evermem/SKILL.md            (fallback)
-//   Qwen Code    → ~/.qwen/skills/evermem/SKILL.md
+// skills/
+//   evermem/                → ~/.claude/skills/evermem/               (/evermem)
+//   evermem-sync-context/   → ~/.claude/skills/evermem-sync-context/  (/evermem-sync-context)
+//
+// To add a new skill: create skills/<name>/SKILL.md. No installer changes needed.
 
 const SKILL_TARGETS = [
-  // Claude Code
-  { id: "claude",  dir: join(homedir(), ".claude", "skills", "evermem"),          presence: join(homedir(), ".claude") },
-  // Cursor IDE
-  { id: "cursor",  dir: join(homedir(), ".cursor", "skills", "evermem"),          presence: join(homedir(), ".cursor") },
-  // Codex CLI
-  { id: "codex",   dir: join(homedir(), ".codex",  "skills", "evermem"),          presence: join(homedir(), ".codex") },
-  // Kimi CLI — primary location (.config/agents is the preferred path per docs)
-  { id: "kimi",    dir: join(homedir(), ".config", "agents", "skills", "evermem"), presence: join(homedir(), ".kimi") },
-  // Kimi CLI — fallback
-  { id: "kimi2",   dir: join(homedir(), ".kimi",   "skills", "evermem"),           presence: join(homedir(), ".kimi") },
-  // Qwen Code
-  { id: "qwen",    dir: join(homedir(), ".qwen",   "skills", "evermem"),           presence: join(homedir(), ".qwen") },
+  { id: "claude", skillsDir: join(homedir(), ".claude", "skills"), presence: join(homedir(), ".claude") },
+  { id: "cursor", skillsDir: join(homedir(), ".cursor", "skills"), presence: join(homedir(), ".cursor") },
+  { id: "codex",  skillsDir: join(homedir(), ".codex",  "skills"), presence: join(homedir(), ".codex") },
+  { id: "kimi",   skillsDir: join(homedir(), ".config", "agents", "skills"), presence: join(homedir(), ".kimi") },
+  { id: "kimi2",  skillsDir: join(homedir(), ".kimi",   "skills"), presence: join(homedir(), ".kimi") },
+  { id: "qwen",   skillsDir: join(homedir(), ".qwen",   "skills"), presence: join(homedir(), ".qwen") },
 ];
 
 async function installSkill({ allTargets = false } = {}) {
-  const SKILL_SRC = join(__dirname, "..", "skill", "SKILL.md");
+  const { readdir } = await import("node:fs/promises");
+  const SKILLS_SRC = join(__dirname, "..", "skills");
   const results = [];
 
+  // Enumerate skill directories (e.g. ["evermem", "evermem-sync-context"])
+  let skillDirs = [];
+  try {
+    const entries = await readdir(SKILLS_SRC, { withFileTypes: true });
+    skillDirs = entries.filter((e) => e.isDirectory()).map((e) => e.name);
+  } catch { /* skills/ missing */ }
+
   for (const target of SKILL_TARGETS) {
-    // Skip tools not installed on this machine (unless --all flag)
     if (!allTargets && !existsSync(target.presence)) continue;
 
     try {
-      await mkdir(target.dir, { recursive: true });
-      await copyFile(SKILL_SRC, join(target.dir, "SKILL.md"));
-      results.push({ id: target.id, dir: target.dir, ok: true });
+      await mkdir(target.skillsDir, { recursive: true });
+      for (const name of skillDirs) {
+        await cp(join(SKILLS_SRC, name), join(target.skillsDir, name), { recursive: true, force: true });
+      }
+      results.push({ id: target.id, skillsDir: target.skillsDir, ok: true, installed: skillDirs });
     } catch (err) {
-      results.push({ id: target.id, dir: target.dir, ok: false, error: err.message });
+      results.push({ id: target.id, skillsDir: target.skillsDir, ok: false, error: err.message });
     }
   }
 
@@ -183,7 +186,7 @@ program
       console.log("  No AI CLI tools detected. Run `evermem install-skill` after installing your tools.");
     } else {
       for (const r of skillResults) {
-        if (r.ok) console.log(`  ✓ ${r.id.replace("2", " (fallback)")} → ${r.dir}`);
+        if (r.ok) console.log(`  ✓ ${r.id.replace("2", " (fallback)")} → ${r.skillsDir}`);
         else console.warn(`  ✗ ${r.id}: ${r.error}`);
       }
     }
@@ -367,16 +370,17 @@ program
       const name = toolNames[r.id] ?? r.id;
       if (r.ok) {
         console.log(`  ✓ ${name}`);
-        console.log(`    → ${r.dir}`);
+        console.log(`    → ${r.skillsDir} (${r.installed?.join(", ")}`);
       } else {
         console.warn(`  ✗ ${name}: ${r.error}`);
       }
     }
-    console.log("\nRestart your AI tool to pick up the new skill.");
-    console.log("  Claude Code: restart session, type /evermem");
-    console.log("  Codex CLI:   restart session, type $evermem");
-    console.log("  Kimi CLI:    restart session, type /skill:evermem");
-    console.log("  Qwen Code:   restart session, type /skills");
+    console.log("\nRestart your AI tool to pick up the new skills.");
+    console.log("  Claude Code: /evermem               — memory search & sync");
+    console.log("  Claude Code: /evermem-sync-context  — load project context into CLAUDE.md");
+    console.log("  Codex CLI:   $evermem");
+    console.log("  Kimi CLI:    /skill:evermem");
+    console.log("  Qwen Code:   /skills");
   });
 
 // ── search ───────────────────────────────────────────────────────────────────

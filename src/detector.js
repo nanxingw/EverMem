@@ -56,7 +56,7 @@ const AGENT_DEFS = [
     name: "Cursor IDE",
     checkDir: join(homedir(), ".cursor", "chats"),
     logDir: join(homedir(), ".cursor", "chats"),
-    logPattern: /\.json$/,
+    logPattern: /store\.db$/,
     description: "Cursor AI IDE",
     extractScript: "extract-cursor.mjs",
   },

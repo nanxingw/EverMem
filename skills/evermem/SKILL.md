@@ -3,7 +3,7 @@ name: evermem
 description: >
   EverMemOS long-term memory for AI coding tools. Use this skill when the user
   wants to remember past conversations, search previous sessions, recall project
-  context, or sync memories from Claude Code / Codex / Kimi / Qwen Code.
+  context, or sync memories from Claude Code / Cursor / Codex / Kimi / Qwen Code.
   Triggers on: "remember", "recall", "what did we discuss", "search memory",
   "sync memories", "past sessions", "previous context", "what have I worked on".
   Provides evermem run (sync) and evermem search (retrieve).
@@ -20,7 +20,7 @@ allowed-tools:
 
 # EverMem — Cross-Tool Long-Term Memory via EverMemOS
 
-Connects Claude Code, Codex CLI, Kimi, and Qwen Code to [EverMemOS](https://docs.evermind.ai)
+Connects Claude Code, Cursor IDE, Codex CLI, Kimi, and Qwen Code to [EverMemOS](https://docs.evermind.ai)
 for persistent, semantically searchable memory across all your AI coding sessions.
 
 ## Invocation
@@ -68,6 +68,7 @@ evermem run --dry-run                # preview without uploading
 | Agent | Log Location |
 |-------|-------------|
 | Claude Code | `~/.claude/projects/**/*.jsonl` |
+| Cursor IDE | `~/.cursor/chats/**/<session>/store.db` |
 | Codex CLI | `~/.codex/sessions/**/rollout-*.jsonl` |
 | Kimi CLI | `~/.kimi/sessions/**/context.jsonl` |
 | Qwen Code | `~/.qwen/` or `$QWEN_SHARE_DIR` |
