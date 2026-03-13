@@ -1,0 +1,42 @@
+{
+  "name": "evermem-async",
+  "version": "0.1.0",
+  "description": "One-line CLI tool to connect any AI coding agent to EverMemOS long-term memory",
+  "type": "module",
+  "bin": {
+    "evermem": "./bin/evermem.js"
+  },
+  "scripts": {
+    "dev": "node src/daemon.js",
+    "build": "cd web && npm run build",
+    "web:dev": "cd web && npm run dev",
+    "start": "node bin/evermem.js start",
+    "setup": "node bin/evermem.js setup"
+  },
+  "dependencies": {
+    "commander": "^12.0.0",
+    "express": "^4.19.0",
+    "node-cron": "^3.0.3",
+    "inquirer": "^9.2.0",
+    "open": "^10.1.0",
+    "chalk": "^5.3.0"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": [
+    "evermemos",
+    "memory",
+    "claude",
+    "codex",
+    "ai",
+    "cli",
+    "agent"
+  ],
+  "author": "nanxingw",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nanxingw/EverMem"
+  }
+}

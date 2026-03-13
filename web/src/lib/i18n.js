@@ -1,0 +1,163 @@
+export const translations = {
+  zh: {
+    // Navigation
+    dashboard: "概览",
+    config: "配置",
+    agents: "Agent 管理",
+    search: "记忆搜索",
+    lang: "EN",
+
+    // Dashboard
+    daemonStatus: "Daemon 状态",
+    running: "运行中",
+    stopped: "已停止",
+    uptime: "运行时长",
+    nextSync: "下次同步",
+    manualRun: "立即同步",
+    syncing: "同步中...",
+    recentActivity: "最近活动",
+    noActivity: "暂无活动记录",
+    messages: "条消息",
+    sessions: "个会话",
+    errors: "个错误",
+    minutes: "分",
+    seconds: "秒",
+
+    // Config
+    configTitle: "配置",
+    apiKey: "EverMemOS API Key",
+    apiKeyPlaceholder: "输入你的 API Key",
+    apiKeyHelp: "从 evermind.ai 获取",
+    interval: "同步间隔（分钟）",
+    intervalHelp: "每隔多少分钟自动同步一次",
+    port: "Web UI 端口",
+    userId: "用户 ID",
+    userIdHelp: "EverMemOS 中的用户标识",
+    maxTurns: "最大对话轮数",
+    maxTurnsHelp: "每个会话最多提取多少轮对话",
+    save: "保存配置",
+    saving: "保存中...",
+    saved: "已保存 ✓",
+    configSaved: "配置已保存",
+    show: "显示",
+    hide: "隐藏",
+
+    // Agents
+    agentsTitle: "Agent 管理",
+    detectAgents: "重新检测",
+    detecting: "检测中...",
+    detected: "已检测",
+    notDetected: "未检测到",
+    enabled: "已启用",
+    disabled: "已禁用",
+    logPath: "日志路径",
+    enable: "启用",
+    disable: "禁用",
+    noAgents: "未检测到任何 CLI 工具",
+
+    // Search
+    searchTitle: "记忆搜索",
+    searchPlaceholder: "搜索记忆...",
+    searchMethod: "搜索方式",
+    keyword: "关键词",
+    vector: "向量",
+    hybrid: "混合",
+    agentic: "智能",
+    topK: "结果数量",
+    searchBtn: "搜索",
+    searching: "搜索中...",
+    noResults: "未找到相关记忆",
+    score: "相关度",
+    type: "类型",
+    triggerRun: "立即同步记忆",
+
+    // Status
+    apiKeyMissing: "API Key 未配置，请先完成配置",
+    loadError: "加载失败",
+    runSuccess: "同步任务已启动",
+    runError: "启动同步失败",
+  },
+
+  en: {
+    // Navigation
+    dashboard: "Dashboard",
+    config: "Config",
+    agents: "Agents",
+    search: "Search",
+    lang: "中",
+
+    // Dashboard
+    daemonStatus: "Daemon Status",
+    running: "Running",
+    stopped: "Stopped",
+    uptime: "Uptime",
+    nextSync: "Next Sync",
+    manualRun: "Sync Now",
+    syncing: "Syncing...",
+    recentActivity: "Recent Activity",
+    noActivity: "No activity yet",
+    messages: "messages",
+    sessions: "sessions",
+    errors: "errors",
+    minutes: "min",
+    seconds: "sec",
+
+    // Config
+    configTitle: "Configuration",
+    apiKey: "EverMemOS API Key",
+    apiKeyPlaceholder: "Enter your API Key",
+    apiKeyHelp: "Get from evermind.ai",
+    interval: "Sync Interval (minutes)",
+    intervalHelp: "How often to auto-sync memories",
+    port: "Web UI Port",
+    userId: "User ID",
+    userIdHelp: "Your identifier in EverMemOS",
+    maxTurns: "Max Conversation Turns",
+    maxTurnsHelp: "Max turns to extract per session",
+    save: "Save Config",
+    saving: "Saving...",
+    saved: "Saved ✓",
+    configSaved: "Configuration saved",
+    show: "Show",
+    hide: "Hide",
+
+    // Agents
+    agentsTitle: "Agent Management",
+    detectAgents: "Re-detect",
+    detecting: "Detecting...",
+    detected: "Detected",
+    notDetected: "Not found",
+    enabled: "Enabled",
+    disabled: "Disabled",
+    logPath: "Log path",
+    enable: "Enable",
+    disable: "Disable",
+    noAgents: "No CLI tools detected",
+
+    // Search
+    searchTitle: "Memory Search",
+    searchPlaceholder: "Search memories...",
+    searchMethod: "Search Method",
+    keyword: "Keyword",
+    vector: "Vector",
+    hybrid: "Hybrid",
+    agentic: "Agentic",
+    topK: "Results",
+    searchBtn: "Search",
+    searching: "Searching...",
+    noResults: "No memories found",
+    score: "Score",
+    type: "Type",
+    triggerRun: "Sync Memories Now",
+
+    // Status
+    apiKeyMissing: "API Key not configured. Complete setup first.",
+    loadError: "Load failed",
+    runSuccess: "Sync started",
+    runError: "Failed to start sync",
+  },
+};
+
+export function createI18n(lang = "zh") {
+  return (key) => translations[lang]?.[key] ?? translations.en[key] ?? key;
+}

@@ -1,0 +1,23 @@
+# Security - never commit
+.claude/
+.env
+*.env
+.env.*
+
+# Dependencies
+node_modules/
+
+# Build output
+web/dist/
+dist/
+
+# Runtime data (stored in ~/.evermem/)
+*.pid
+*.log
+
+# macOS
+.DS_Store
+
+# Editor
+.vscode/
+.idea/
