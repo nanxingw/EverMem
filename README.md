@@ -18,6 +18,14 @@
 
 ---
 
+## 视频介绍 / Demo Video
+
+[![Watch on YouTube](https://img.youtube.com/vi/ZD2KWSh2rf8/maxresdefault.jpg)](https://www.youtube.com/watch?v=ZD2KWSh2rf8)
+
+> ▶ 点击封面在 YouTube 观看完整演示 · Click to watch the full demo on YouTube
+
+---
+
 ## Web 控制台预览 / UI Preview
 
 ![EverMem Web UI](docs/ui-preview.png)

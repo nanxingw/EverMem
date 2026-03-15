@@ -3,7 +3,7 @@
 .env
 *.env
 .env.*
-
+logs/
 # Dependencies
 node_modules/
 

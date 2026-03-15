@@ -65,28 +65,29 @@ Header：毛玻璃奶油白半透明，`backdrop-filter: blur(20px) saturate(1.8
    语言切换不应有布局抖动，共享同一套间距和字号体系。
 
 ## Project Context
-<!-- last synced: 2026-03-13 -->
+<!-- last synced: 2026-03-15 -->
 
 ### 开发现状 / Current State
-- v0.1.0，已发布至 GitHub（https://github.com/nanxingw/EverMem），npm 包名 `evermem-async`
-- 核心功能全部可用：CLI、后台 daemon（每 30 分钟 cron）、Web UI（Dashboard / Config / Search 三 Tab）
-- 支持四大 AI 代理：Claude Code、Codex CLI、Qwen Code、Kimi CLI，自动检测并安装对应 skill
-- Daemon 通过 SSE 向前端推送实时状态，运行日志写入 `~/.evermem/runs.jsonl`
-- 端口自动分配（`port: 0`），实际端口写入 `~/.evermem/config.json` 供前端使用，避免硬编码冲突
-- 配置持久化于 `~/.evermem/config.json`，包含 API Key、lastRun、同步间隔、已启用 agents 列表
-- UI 已升级为亮色暖调主题（2026-03），带毛玻璃 Header 和 ambient orbs
+- **v0.1.0 已发布至 npm**（`npm install -g evermem-async`），GitHub: https://github.com/nanxingw/EverMem
+- 支持四大 AI 工具：Claude Code、Codex CLI、Cursor IDE、Qwen/Kimi
+- Daemon 已全局运行：支持 cron（每 30 分钟）、CLI 手动触发、HTTP API 触发，具备幂等性、去重、并发控制
+- SSE 实时推送同步状态到 Web UI，日志记录于 `~/.evermem/runs.jsonl`
+- Web UI（Svelte，端口 7349）：Dashboard / Agents / Config / Search 四模块，中英双语 i18n，当前为暖色亮调主题
+- 配置持久化于 `~/.evermem/config.json`（API Key、lastRun、同步间隔、启用 agents 列表）
+- 技能自动部署：`evermem install-skill` 写入 `~/.claude/skills/evermem`、`~/.codex/skills/evermem`、`~/.config/agents/skills/evermem`、`~/.qwen/skills/evermem`
 
 ### 开发历程 / Key Decisions
-- 从 skill-evolver 项目中剥离 evermem 技能，独立成 npm 包——目标是"单行命令接入"
-- 记忆同步采用增量策略：首次同步最近 5 会话，后续以 `lastRun` 时间戳防重复上传
-- JSONL 日志提取过滤 `reasoning` 和 `tool_use` 块，只保留用户消息 + 助手最终回复
-- Skill 通过 `evermem install-skill` 自动部署到各工具目录，SKILL.md 格式兼容各平台字段差异
-- Cursor 曾因旧版 `detector.js` 未显示，重启后修复；端口冲突通过 `port: 0` 彻底解决
-- 引入 `evermem-sync-context` skill，让 AI 工具可一键加载项目历史上下文（flat skills/ 布局）
+- **Cursor 提取难点**：Cursor 的 `store.db` 为 SQLite，用户消息是 JSON，助手消息是 protobuf 二进制 → 用 Python3 内联脚本 + 正则解析解决（`extract-cursor.mjs`）
+- **技能部署路径**：`evermem-sync-context` 采用平级目录（不是命名空间子目录），确保 Claude Code 等工具能正确加载
+- **npm 发包踩坑**：需要 `.npmignore` 防止 `.claude/`、`.env`、`node_modules/`、`web/dist/` 泄露；`bin` 字段路径格式必须与实际文件名完全一致
+- **端口自动检测**：`findFreePort` 逻辑有 bug，后修复为自动探测可用端口
+- **UI 主题演进**：从初版暗紫调 → 全面重设计为暖橙亮调（奶油白底 + 暖橙 accent），参照系 Raycast/Linear
 
 ### 未来方向 / Roadmap
-- P0：npm 正式发布（当前为 GitHub 仓库安装，需走 npm publish 流程）
-- P1：Web UI Search 功能完善（当前后端已有 `/search` 接口，前端体验可深化）
-- P1：更多 agent 支持（如 Windsurf、Gemini CLI 等新兴工具）
-- P2：Web UI 国际化（i18n）状态与布局稳定性验证
-- P2：skill-evolver 与 evermem-async 的生态协同（技能自动进化触发记忆同步）
+- **P0**：`evermem-sync-context` 功能打磨（10 项核心能力已实现，需更多实战验证）
+- **P0**：Cursor IDE 提取稳定性提升（protobuf 解析仍依赖正则，存在边缘 case）
+- **P1**：Web UI Search 页深化——支持跨 agent 过滤、时间范围筛选
+- **P1**：README / 文档补全（用户反馈 API key 获取路径不清晰，已加 console.evermind.ai 说明）
+- **P2**：支持更多 agent（Windsurf、Zed AI 等新兴工具）
+- **P2**：v0.2.0 路线图待定（可能包含：记忆去重优化、搜索质量提升、移动端 Web UI）
+
